@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>AHA Physics Series 8 – ROYGBIV Prism Jumper</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:#1a1a40;font-family:"Courier New",monospace;color:#fff;user-select:none;touch-action:manipulation}
+#app{max-width:760px;margin:0 auto;padding:6px}
+.bar{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-bottom:4px}
+button{font:bold 13px "Courier New",monospace;background:#ffcb05;color:#222;border:3px solid #222;border-radius:4px;padding:7px 10px;cursor:pointer;box-shadow:0 3px 0 #222}
+button:active{transform:translateY(3px);box-shadow:none}
+button.alt{background:#5c94fc;color:#fff}
+.brand{text-align:center;font-weight:bold;color:#ffcb05;font-size:12px;letter-spacing:1px;margin:3px 0}
+.scr{display:none;background:#2b2b66;border:4px solid #ffcb05;border-radius:6px;padding:10px;min-height:300px}
+.scr.on{display:block}
+h1{margin:6px 0;text-align:center;font-size:24px;color:#ffcb05;text-shadow:3px 3px #c0392b}
+h2{margin:4px 0;color:#ffcb05}
+.menu{display:flex;flex-direction:column;gap:8px;max-width:300px;margin:12px auto}
+.rainbow{height:10px;background:linear-gradient(90deg,#e53935,#fb8c00,#fdd835,#43a047,#1e88e5,#3949ab,#8e24aa);margin:6px 0}
+.hub{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.portal{padding:14px 4px;font-size:12px;border-radius:50% 50% 8px 8px/40% 40% 8px 8px;color:#fff;text-shadow:1px 1px #000}
+.hud{display:flex;justify-content:space-between;flex-wrap:wrap;font-size:12px;gap:4px;margin-bottom:4px}
+canvas#cv{width:100%;display:block;image-rendering:pixelated;border:3px solid #000;background:#5c94fc}
+#crab{display:flex;gap:6px;align-items:center;margin-top:5px;min-height:46px}
+#bub{background:#fff;color:#222;border:3px solid #222;border-radius:8px;padding:6px 8px;font-size:13px;flex:1}
+.touch{display:flex;justify-content:space-between;margin-top:6px}
+.touch button{width:30%;font-size:22px;padding:14px 0}
+#lab{display:none;margin-top:6px}
+.cb{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
+.cb button{flex:1;min-width:44px;color:#fff;text-shadow:1px 1px #000}
+table{width:100%;border-collapse:collapse;font-size:12px}
+td,th{border:1px solid #888;padding:3px;text-align:center}
+#ov{position:absolute;display:none;inset:0;background:rgba(0,0,0,.75);z-index:9;align-items:center;justify-content:center;text-align:center;padding:20px}
+#ov.on{display:flex}
+#ov div{background:#2b2b66;border:4px solid #ffcb05;padding:16px;border-radius:8px;max-width:420px}
+.ach{padding:6px;margin:4px 0;border:2px solid #555;border-radius:4px;opacity:.5}
+.ach.got{opacity:1;border-color:#ffcb05;background:#3a3a80}
+label{display:block;margin:8px 0}
+.rm *{transition:none!important;animation:none!important}
+</style></head><body>
+<div id="app">
+<div class="brand">NOT BY SIGHT, BUT BY INSIGHT.</div>
+<div class="bar">
+<button class="alt" onclick="go('menu')">🏠 HOME MENU</button>
+<button class="alt" onclick="go('hub')">🏰 RETURN TO HUB</button>
+<button class="alt" onclick="replay()">🔁 REPLAY LEVEL</button>
+<button class="alt" onclick="pause()">⏸ PAUSE</button>
+<button class="alt" id="mb" onclick="toggleMusic()">🔊 MUSIC: ON</button></div>
+
+<div id="s_menu" class="scr on">
+<h1>ROYGBIV<br>PRISM JUMPER</h1><div class="rainbow"></div>
+<div style="text-align:center">AHA Physics Series 8 · SPM Physics KSSM 4531<br><b>One Colour Change = Seven Physics Changes</b></div>
+<div class="menu">
+<button onclick="go('hub')">▶ Start Adventure</button>
+<button onclick="go('hub')">🧭 Free Explore</button>
+<button onclick="go('notes')">📘 Physics Notes</button>
+<button onclick="go('ach')">🏆 Achievement Hall</button>
+<button onclick="go('set')">⚙ Settings</button>
+<button onclick="resetAll()">🗑 Reset Progress</button></div>
+<div style="text-align:center"><canvas id="mc" width="60" height="48" style="width:90px;image-rendering:pixelated"></canvas></div></div>
+
+<div id="s_hub" class="scr"><h2>🌈 PRISM KINGDOM</h2>
+<div id="rank" style="font-size:12px"></div>
+<div style="font-size:12px">Pick any portal. Replay and practise as much as you like.</div>
+<div class="hub" id="portals"></div></div>
+
+<div id="s_game" class="scr" style="position:relative">
+<div class="hud"><b id="ln"></b><span id="xp"></span><span id="cmb"></span><span id="st"></span></div>
+<canvas id="cv" width="640" height="360"></canvas>
+<div id="lab"><div class="cb" id="cb"></div><table id="ro"></table></div>
+<div class="touch" id="tc"><button id="bl">◀</button><button id="bj">⤒ JUMP</button><button id="br">▶</button></div>
+<div id="crab"><canvas id="cc" width="48" height="40" style="width:56px;image-rendering:pixelated"></canvas><div id="bub"></div></div></div>
+
+<div id="s_notes" class="scr"><h2>📘 Physics Notes · Insight Shrine</h2>
+<div class="rainbow"></div>
+<p><b>ROYGBIV</b>: Red → Orange → Yellow → Green → Blue → Indigo → Violet</p>
+<p><b>FNP ↑</b> (Red → Violet): Frequency ↑ · Refractive index ↑ · Prism deviation ↑</p>
+<p><b>WSCF ↓</b>: Wavelength ↓ · Speed in medium ↓ · Critical angle ↓ · Fringe spacing ↓</p>
+<p><b>Same for all colours</b>: speed in vacuum (c). <b>Frequency never changes</b> when light enters a new medium.</p>
+<p>v = fλ · n = c/v · sin C = 1/n · x = λD/a</p>
+<table id="nt"></table>
+<p><b>CHANGE COLOUR, CHANGE PHYSICS.</b></p></div>
+
+<div id="s_ach" class="scr"><h2>🏆 Achievement Hall</h2><div id="al"></div></div>
+
+<div id="s_set" class="scr"><h2>⚙ Settings</h2>
+<label><input type="checkbox" id="rm" onchange="setOpt()"> Reduced motion</label>
+<label>Boss Castle speed: <select id="bs" onchange="setOpt()"><option value="0.6">Slow 60%</option><option value="0.8">Easy 80%</option><option value="1">Normal 100%</option><option value="1.2">Fast 120%</option></select></label>
+<div style="font-size:12px">Colour-blind help is always on: every colour shows its letter (R O Y G B I V). Keys: ← → / A D move, ↑ / W / Space jump, P pause.</div></div>
+
+<div id="s_end" class="scr" style="text-align:center"><h1>🎉 Congratulations Engineer!</h1>
+<canvas id="ec" width="48" height="40" style="width:120px;image-rendering:pixelated"></canvas>
+<p>You have learned:</p><p><b>ROYGBIV<br>FNP ↑<br>WSCF ↓<br>Change Colour<br>Change Physics</b></p>
+<div class="rainbow"></div><h2>NOT BY SIGHT, BUT BY INSIGHT.</h2>
+<button onclick="go('hub')">Back to Hub</button></div>
+<div id="ov"><div id="ovb"></div></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const C=[{n:'Red',k:'R',c:'#e53935',wl:700},{n:'Orange',k:'O',c:'#fb8c00',wl:620},{n:'Yellow',k:'Y',c:'#fdd835',wl:580},{n:'Green',k:'G',c:'#43a047',wl:550},{n:'Blue',k:'B',c:'#1e88e5',wl:470},{n:'Indigo',k:'I',c:'#3949ab',wl:445},{n:'Violet',k:'V',c:'#8e24aa',wl:400}];
+const NN=[1.513,1.515,1.517,1.519,1.523,1.528,1.532];
+function phys(i){const n=NN[i],w=C[i].wl;return{Frequency:(3e8/(w*1e-9)/1e14).toFixed(2)+' ×10¹⁴ Hz',Wavelength:w+' nm','Speed in glass':(3/n).toFixed(3)+' ×10⁸ m/s','Refractive index n':n.toFixed(3),'Critical angle':(Math.asin(1/n)*180/Math.PI).toFixed(1)+'°','Prism deviation':((n-1)*60).toFixed(1)+'°','Fringe spacing':(w*0.002).toFixed(2)+' mm'}}
+const LV={1:{n:'ROYGBIV FIELD',sp:.6},2:{n:'WAVELENGTH HIGHWAY',sp:.8},3:{n:'FNP TOWER',sp:.8},4:{n:'WSCF CAVE',sp:1},5:{n:'DISPERSION LAB',sp:1},6:{n:'EXAM TRAP ARENA',sp:1.2},7:{n:'BOSS CASTLE',sp:1}};
+const AC=[['Rainbow Rookie','Clear ROYGBIV Field',s=>s.done[1]],['Spectrum Explorer','Clear Wavelength Highway',s=>s.done[2]],['FNP Master','Clear FNP Tower',s=>s.done[3]],['WSCF Survivor','Clear WSCF Cave',s=>s.done[4]],['Dispersion Hunter','Try all 7 colours in the Lab',s=>(s.lab||[]).length>=7],['Exam Slayer','Clear Exam Trap Arena',s=>s.done[6]],['Soul Engineer','Read the Insight Shrine',s=>s.shrine],['SPM Physics Master','Defeat Lord Dispersion',s=>s.done[7]]];
+const RK=[[0,'Novice Crab'],[100,'Spectrum Apprentice'],[250,'Prism Explorer'],[450,'Optics Engineer'],[700,'Dispersion Champion'],[1000,'SPM Physics Master']];
+let S=load();
+function load(){try{return Object.assign({xp:0,done:{},lab:[],shrine:0,rm:0,bs:1},JSON.parse(localStorage.getItem('aha8')||'{}'))}catch(e){return{xp:0,done:{},lab:[],shrine:0,rm:0,bs:1}}}
+function save(){try{localStorage.setItem('aha8',JSON.stringify(S))}catch(e){}}
+function resetAll(){if(confirm('Reset all progress?')){S={xp:0,done:{},lab:[],shrine:0,rm:0,bs:1};save();setOpt(1);go('menu')}}
+function setOpt(init){if(!init){S.rm=$('rm').checked?1:0;S.bs=+$('bs').value;save()}$('rm').checked=!!S.rm;$('bs').value=S.bs;document.body.classList.toggle('rm',!!S.rm)}
+/* sprites */
+function crab(c,x,y,s,f){const R=(a,b,w,h,col)=>{c.fillStyle=col;c.fillRect(x+a*s,y+b*s,w*s,h*s)};
+R(-3,5+f,4,4,'#e64a19');R(15,5+f,4,4,'#e64a19');R(1,7,2,2,'#e64a19');R(13,7,2,2,'#e64a19');
+R(1,8,14,6,'#ff5722');R(2,14,2,2,'#e64a19');R(6,14,2,2,'#e64a19');R(9,14,2,2,'#e64a19');R(13,14,2,2,'#e64a19');
+R(4,5,3,4,'#fff');R(9,5,3,4,'#fff');R(5,7,1,2,'#000');R(10,7,1,2,'#000');
+R(2,2,12,4,'#ffd600');R(5,0,6,2,'#ffd600');c.fillStyle='#000';c.font=(2.6*s)+'px monospace';c.fillText('AHA',x+4.2*s,y+5.3*s)}
+function drawMini(id){const c=$(id).getContext('2d');c.clearRect(0,0,60,60);crab(c,id=='cc'||id=='ec'?10:20,14,2,0)}
+let tmo;function say(m){$('bub').textContent=m}
+/* audio: original chiptune, WebAudio only */
+let AU=null,mT=0,mS=0;
+const LEAD=[72,76,79,76,81,79,76,72, 74,77,81,77,79,77,74,71, 72,76,79,84,83,79,76,79, 77,76,74,72,74,0,67,0];
+const mf=n=>440*Math.pow(2,(n-69)/12);
+function ac(){if(!AU){try{AU=new(window.AudioContext||window.webkitAudioContext)();setInterval(music,50)}catch(e){}}if(AU&&AU.state=='suspended')AU.resume();return AU}
+function tone(f,t,d,ty,v){const o=AU.createOscillator(),g=AU.createGain();o.type=ty;o.frequency.value=f;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(AU.destination);o.start(t);o.stop(t+d+.02)}
+function sweep(a,b,d,ty,v){const t=AU.currentTime,o=AU.createOscillator(),g=AU.createGain();o.type=ty;o.frequency.setValueAtTime(a,t);o.frequency.exponentialRampToValueAtTime(b,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(AU.destination);o.start(t);o.stop(t+d+.02)}
+function music(){if(!AU||S.mu===0||paused||AU.state!='running')return;if(mT<AU.currentTime)mT=AU.currentTime+.05;const d=(G&&G.L==7)?.1:.13;
+while(mT<AU.currentTime+.25){const n=LEAD[mS%32];if(n)tone(mf(n),mT,d*.9,'square',.05);if(mS%2==0){const r=[48,50,48,55][(mS>>3)%4]-12+(mS%4?7:0);tone(mf(r),mT,d*1.8,'triangle',.13)}if(mS%4==2)tone(mf(96),mT,.03,'square',.015);mS++;mT+=d}}
+function sfx(k){if(!AU||S.mu===0)return;const t=AU.currentTime;
+if(k=='j')sweep(300,750,.14,'square',.07);
+else if(k=='c'){tone(988,t,.07,'square',.07);tone(1319,t+.07,.22,'square',.07)}
+else if(k=='st')sweep(500,120,.15,'square',.1);
+else if(k=='hit')sweep(600,90,.35,'sawtooth',.1);
+else if(k=='no')sweep(300,140,.25,'sawtooth',.07);
+else if(k=='ok')[523,659,784,1047].forEach((f,i)=>tone(f,t+i*.07,.15,'square',.07));
+else if(k=='win')[523,659,784,1047,784,1047,1319].forEach((f,i)=>tone(f,t+i*.11,.2,'square',.07))}
+function updMb(){$('mb').textContent=S.mu===0?'🔇 MUSIC: OFF':'🔊 MUSIC: ON'}
+function toggleMusic(){S.mu=S.mu===0?1:0;save();updMb();if(S.mu!==0)ac()}
+['pointerdown','keydown'].forEach(e=>addEventListener(e,()=>{if(S.mu!==0)ac()},{passive:true}));
+/* enemies */
+function mkE(L){const E=[];if(L==1){[260,520,780].forEach(x=>E.push({t:'w',x,y:276,x0:x-90,x1:x+90,d:1}));[420,690].forEach(x=>E.push({t:'b',x,y:0,by:150,x0:x-110,x1:x+110,d:-1}))}
+else if(L>=2&&L<=4){[1,3,5].forEach(i=>{const p=G.P[i];E.push({t:'w',x:p[0]+p[2]/2,y:p[1]-24,x0:p[0],x1:p[0]+p[2]-24,d:1})})}return E}
+function drawE(c){for(const e of G.E||[]){if(e.dead)continue;const f=(G.ani>>3)&1;
+if(e.t=='w'){c.fillStyle='#8d6e63';c.fillRect(e.x+2,e.y,20,16);c.fillRect(e.x,e.y+6,24,10);c.fillStyle='#fff';c.fillRect(e.x+4,e.y+6,6,6);c.fillRect(e.x+14,e.y+6,6,6);c.fillStyle='#000';c.fillRect(e.x+7,e.y+8,3,4);c.fillRect(e.x+14,e.y+8,3,4);c.fillRect(e.x+3,e.y+4,8,2);c.fillRect(e.x+13,e.y+4,8,2);c.fillStyle='#3e2723';c.fillRect(e.x+(f?0:4),e.y+18,8,6);c.fillRect(e.x+(f?16:12),e.y+18,8,6)}
+else{c.fillStyle='#6a1b9a';c.fillRect(e.x+6,e.y+6,12,12);c.fillRect(e.x-(f?4:0),e.y+(f?2:8),10,6);c.fillRect(e.x+18,e.y+(f?2:8),10,6);c.fillStyle='#ff5252';c.fillRect(e.x+8,e.y+9,3,3);c.fillRect(e.x+14,e.y+9,3,3)}}}
+/* ui */
+let cur='menu',lastL=1,G=null,paused=false,raf=0;
+function go(s){cur=s;if(s!='game')G=null;document.querySelectorAll('.scr').forEach(e=>e.classList.remove('on'));$('s_'+s).classList.add('on');$('ov').classList.remove('on');paused=false;
+if(s=='hub')hub();if(s=='ach')achs();if(s=='notes'){S.shrine=1;save();notes()}if(s=='menu')drawMini('mc');if(s=='end')drawMini('ec');scrollTo(0,0)}
+function rank(){let r=RK[0][1],nx='';for(const k of RK)if(S.xp>=k[0])r=k[1];return r}
+function hub(){$('rank').textContent='Rank: '+rank()+' · XP '+S.xp;const P=[['ROYGBIV FIELD',1,'#e53935'],['WAVELENGTH HIGHWAY',2,'#fb8c00'],['FNP TOWER',3,'#43a047'],['WSCF CAVE',4,'#1e88e5'],['DISPERSION LAB',5,'#3949ab'],['EXAM TRAP ARENA',6,'#8e24aa'],['BOSS CASTLE',7,'#b71c1c'],['INSIGHT SHRINE','notes','#00897b'],['ACHIEVEMENT HALL','ach','#f9a825']];
+$('portals').innerHTML='';P.forEach(p=>{const b=document.createElement('button');b.className='portal';b.style.background=p[2];b.textContent=(S.done[p[1]]?'✔ ':'')+p[0];b.onclick=()=>typeof p[1]=='number'?start(p[1]):go(p[1]);$('portals').appendChild(b)})}
+function achs(){$('al').innerHTML=AC.map(a=>`<div class="ach ${a[2](S)?'got':''}">${a[2](S)?'🏆':'🔒'} <b>${a[0]}</b> – ${a[1]}</div>`).join('')+`<p>Rank: <b>${rank()}</b> · XP ${S.xp}</p>`}
+function notes(){let h='<tr><th></th>'+C.map(c=>`<th style="background:${c.c};color:#fff">${c.k}</th>`).join('')+'</tr>';Object.keys(phys(0)).forEach(k=>{h+=`<tr><td>${k}</td>`+C.map((c,i)=>`<td>${phys(i)[k]}</td>`).join('')+'</tr>'});$('nt').innerHTML=h}
+function pause(){if(cur!='game'||!G)return;paused=!paused;ov(paused?'⏸ PAUSED<br><br><button onclick="pause()">▶ Resume</button>':null)}
+function ov(h){const o=$('ov');if(h){$('ovb').innerHTML=h;o.classList.add('on')}else o.classList.remove('on');o.style.position='fixed'}
+function replay(){start(lastL)}
+function award(n){G.combo++;const g=Math.round(n*(1+Math.min(G.combo,5)*.2));S.xp+=g;save();hud();return g}
+function hud(){if(!G)return;$('xp').textContent='XP '+S.xp+' · '+rank();$('cmb').textContent='Combo x'+G.combo;$('st').textContent=(G.L<5&&G.hearts?'❤'.repeat(G.hearts)+' ':'')+(G.rescue?'🦀 RESCUE ':'')+(G.fails>=7?'💡INSIGHT':'')}
+/* particles */
+function burst(x,y,col){if(S.rm)return;for(let i=0;i<10;i++)G.pt.push({x,y,vx:Math.random()*6-3,vy:Math.random()*-5,l:30,c:col})}
+/* levels */
+function build(L){const P=[],K=[],g={P,K,W:640,blocks:[],seg:[0]};
+if(L==1){g.W=900;P.push([0,300,900,60,0]);const o=[0,1,2,3,4,5,6].sort(()=>Math.random()-.5);g.blocks=o.map((ci,j)=>({ci,x:90+j*110,y:200+(j%2)*30,sh:0,cd:0}));g.next=0}
+else if(L==2){let x=0;for(let i=0;i<7;i++){const w=Math.round(C[i].wl/700*230);P.push([x,300,w,60,i]);K.push({x:x+w/2,y:260});g.seg.push(x+w+70);x+=w+70}g.W=x;g.goal=x-110}
+else if(L==3){for(let i=0;i<7;i++){P.push([i*150,300-i*38,110,40+i*38,i]);K.push({x:i*150+55,y:300-i*38-40});g.seg.push(i*150+150)}g.W=1100;g.goal=900}
+else if(L==4){let x=0;for(let i=0;i<7;i++){const w=150-i*14,gp=60-i*5;P.push([x,300,w,60,i]);K.push({x:x+w/2,y:260});g.seg.push(x+w+gp);x+=w+gp}g.W=x+20;g.goal=x-70}
+else if(L==6||L==7){P.push([0,300,640,60,0]);[['U',60],['D',270],['S',480]].forEach(a=>P.push([a[1],225,100,16,0,a[0]]))}
+return g}
+function segOf(x){let i=0;for(let k=0;k<G.seg.length;k++)if(x>=G.seg[k])i=k;return Math.min(i,6)}
+const QB=[['Frequency','U','f = v/λ. Shorter λ gives higher frequency. FNP ↑!'],['Refractive index of glass','U','Violet slows most in glass, so n is bigger.'],['Prism deviation','U','Higher n means more bending. Violet bends most.'],['Wavelength in air','D','Violet has the shortest wavelength.'],['Speed in glass','D','v = c/n. Bigger n gives lower speed.'],['Critical angle in glass','D','sin C = 1/n. Bigger n gives smaller C.'],['Fringe spacing in Young’s double-slit','D','x = λD/a. Shorter λ gives narrower fringes.'],['Speed of light in vacuum','S','All colours travel at c in vacuum!'],['Frequency when the same light enters glass','S','Frequency is fixed by the source. Only λ and v change.']];
+function nextQ(){const i=G.qs[G.qi%G.qs.length];const rev=Math.random()<.4;const q=QB[i];let a=q[1];if(rev&&a!='S')a=a=='U'?'D':'U';G.q={t:(rev?'Violet → Red: ':'Red → Violet: ')+q[0]+'?',a,e:q[2],rev};say('Q: '+G.q.t+' Land on ▲UP, ▼DOWN or ＝SAME!')}
+/* start */
+function start(L){lastL=L;go('game');const m=LV[L];G={L,sp:m.sp*(L==7?S.bs:1),rescue:0,fails:0,combo:0,pt:[],cam:0,hit:0,p:{x:20,y:260,vx:0,vy:0,on:false,f:0},cp:[20,260],mag:0,hp:700,need:L==6?6:7,qi:0,ani:0,...build(L)};
+$('ln').textContent=LV[L].n;$('lab').style.display=L==5?'block':'none';$('tc').style.display=L==5?'none':'flex';
+if(L>=6){G.qs=QB.map((_,i)=>i).sort(()=>Math.random()-.5);nextQ();G.p.x=300}
+if(L==5){G.sel=0;$('cb').innerHTML='';C.forEach((c,i)=>{const b=document.createElement('button');b.style.background=c.c;b.textContent=c.k;b.onclick=()=>{G.sel=i;if(!S.lab.includes(i)){S.lab.push(i);save()}labUp();burst(0,0);say(c.n+' selected! Watch every row change, not just one.')};$('cb').appendChild(b)});labUp();say('Sandbox time! No game over. Pick a colour and see all seven changes.')}
+const T={1:'Hit blocks in order R O Y G B I V. Dodge the enemies, or jump on their heads!',2:'Red routes are wide, violet routes are narrow. Cross to the flag!',3:'Move Red → Violet. Feel the power grow: jump ↑, crystals pull ↑!',4:'The cave shrinks as we go to violet. Tight but doable!'}[L];if(T)say(T);
+if(L==7)say('Lord Dispersion appears! Predict correctly to deal 100 damage. No death, only retries!');
+G.E=mkE(L);G.hearts=3;G.inv=0;hud();cancelAnimationFrame(raf);loop()}
+function labUp(){const p=phys(G.sel);$('ro').innerHTML=`<tr><th colspan=2 style="background:${C[G.sel].c}">${C[G.sel].n.toUpperCase()}</th></tr>`+Object.keys(p).map(k=>`<tr><td>${k}</td><td><b>${p[k]}</b></td></tr>`).join('')}
+function fail(why){G.fails++;G.combo=0;const f=G.fails;let m=why||'';if(f==3){G.rescue=1;m='CRAB RESCUE MODE! Game slowed 30%. You got this!'}if(f==5)m='Hint time! '+hint();if(f==7){m='INSIGHT MODE on! Look for the glow.'}if(m)say(m);hud()}
+function hint(){return G.L==1?'The order is the rainbow: Red, Orange, Yellow, Green, Blue, Indigo, Violet.':G.L>=6&&G.q?G.q.e:'Red → Violet: FNP ↑, WSCF ↓.'}
+function respawn(){G.p.x=G.cp[0];G.p.y=G.cp[1];G.p.vy=0;fail('Oops! No worries, checkpoint! 🦀')}
+function done(){sfx('win');S.done[G.L]=1;S.xp+=50;save();const L=G.L;G=null;paused=true;
+if(L==7){S.done[7]=1;paused=false;go('end');return}
+ov(`<h2>⭐ STAGE CLEAR! +50 XP</h2>Checkpoint saved.<br><br><button onclick="go('hub')">🏰 Hub</button> <button onclick="start(${L})">🔁 Replay</button>`)}
+/* input */
+const K={l:0,r:0,j:0},Tc={l:0,r:0,j:0};
+onkeydown=e=>{const k=e.key;if(k=='ArrowLeft'||k=='a')K.l=1;if(k=='ArrowRight'||k=='d')K.r=1;if(k=='ArrowUp'||k=='w'||k==' '){K.j=1;if(cur=='game')e.preventDefault()}if(k=='p')pause()};
+onkeyup=e=>{const k=e.key;if(k=='ArrowLeft'||k=='a')K.l=0;if(k=='ArrowRight'||k=='d')K.r=0;if(k=='ArrowUp'||k=='w'||k==' ')K.j=0};
+[['bl','l'],['br','r'],['bj','j']].forEach(a=>{const b=$(a[0]);const on=e=>{e.preventDefault();Tc[a[1]]=1},off=e=>{e.preventDefault();Tc[a[1]]=0};b.addEventListener('touchstart',on);b.addEventListener('touchend',off);b.addEventListener('touchcancel',off);b.addEventListener('mousedown',on);b.addEventListener('mouseup',off);b.addEventListener('mouseleave',off)});
+/* loop */
+function loop(){raf=requestAnimationFrame(loop);if(!G||cur!='game')return;if(!paused&&G.L!=5)step();draw()}
+function step(){const g=G,p=g.p,t=g.sp*(g.rescue?.7:1),L=g.L;g.ani++;
+const d=(K.r||Tc.r?1:0)-(K.l||Tc.l?1:0);p.vx=d*3.2;
+const sg=L==3?segOf(p.x):0;if((K.j||Tc.j)&&p.on){p.vy=-(L==3?8.5+sg*.75:9);p.on=false;sfx('j')}
+const py=p.y;p.x+=p.vx*t;p.vy+=.5*t;p.y+=p.vy*t;p.on=false;p.f=p.vx?(g.ani>>3)&1:0;
+if(p.x<0)p.x=0;if(p.x>g.W-24)p.x=g.W-24;
+let pad=null;
+for(const pl of g.P){if(p.vy>=0&&p.x+22>pl[0]&&p.x+2<pl[0]+pl[2]&&py+28<=pl[1]+3&&p.y+28>=pl[1]){p.y=pl[1]-28;p.vy=0;p.on=true;if(pl[5])pad=pl;else if(L>=2&&L<=4&&pl[0]+10>g.cp[0]){g.cp=[pl[0]+10,pl[1]-30]}}}
+if(L==4){const c=110+segOf(p.x)*13;if(p.y<c){p.y=c;p.vy=0}}
+if(p.y>420)respawn();
+if(L==3)g.mag=40+sg*25;
+for(let i=g.K.length-1;i>=0;i--){const k=g.K[i];const dx=p.x+12-k.x,dy=p.y+14-k.y,ds=Math.hypot(dx,dy);if(L==3&&ds<g.mag&&ds>1){k.x+=dx/ds*-2;k.y+=dy/ds*-2}if(ds<18){g.K.splice(i,1);award(5);sfx('c');burst(k.x,k.y,'#ffd600')}}
+if(L==1){for(const b of g.blocks){if(b.cd>0)b.cd--;if(b.sh>0)b.sh--;if(b.cd==0&&!b.ok&&p.x+22>b.x&&p.x+2<b.x+36&&p.y+28>b.y&&p.y<b.y+36){if(b.ci==g.next){b.ok=1;g.next++;g.cp=[b.x,260];const x=award(10);sfx('ok');burst(b.x+18,b.y,C[b.ci].c);say(['Red first!','Orange next. Nice!','Yellow! Combo!','Green! FNP all naik!','Blue! Almost!','Indigo! One more!','Violet! Wavelength shortest!'][b.ci]+' +'+x+'XP');if(g.next==7){done();return}}else{b.sh=20;b.cd=40;sfx('no');fail('Not yet! After '+(g.next?C[g.next-1].n:'start')+' comes... think rainbow order.')}}}}
+else if(L>=2&&L<=4){if(p.x>g.goal&&p.on){say('Flag reached! Red → Violet = frequency ↑ wavelength ↓.');done();return}}
+else if(L>=6){if(!p.on||!pad){if(p.on)g.lp=null}else if(g.lp!==pad){g.lp=pad;const q=g.q;if(pad[5]==q.a){g.hit++;if(L==7)g.hp-=100;sfx('ok');const x=award(20);burst(p.x,p.y,'#4caf50');say('Correct! '+q.e+' +'+x+'XP');g.fails=0;g.rescue=0;if(g.hit>=g.need){done();return}g.qi++;setTimeout(()=>{if(G==g)nextQ()},1600)}else{burst(p.x,p.y,'#f44336');sfx('no');g.shake=15;fail('Think again! '+(g.fails>=5?q.e:'Violet loves higher frequency, shorter wavelength. Try another pad.'))}}}
+if(g.inv>0)g.inv--;
+for(const e of g.E||[]){if(e.dead){if(--e.dead==0)e.x=e.x0+5;continue}
+e.x+=e.d*(e.t=='w'?.9:1.3)*t;if(e.x<e.x0){e.x=e.x0;e.d=1}if(e.x>e.x1){e.x=e.x1;e.d=-1}
+if(e.t=='b')e.y=e.by+Math.sin(g.ani/18)*30;
+if(Math.abs(p.x-e.x)<20&&Math.abs(p.y+14-e.y-12)<22){
+if(p.vy>1&&p.y+28<e.y+18){e.dead=420;p.vy=-7;sfx('st');burst(e.x,e.y,'#8d6e63');const x=award(15);say(['Stomp! Boing! +','Siap! Enemy kena! +','Engineer power! +'][g.ani%3]+x+'XP')}
+else if(g.inv<=0){g.inv=90;g.combo=0;g.hearts--;sfx('hit');p.vy=-6;p.x=Math.max(0,p.x-(e.x>p.x?35:-35));burst(p.x,p.y,'#f44336');if(g.hearts<=0){g.hearts=3;respawn()}else say('Aiyo! Kena langgar! Jump on its head, jangan langgar! ❤'+g.hearts)}}}
+for(const q of g.pt){q.x+=q.vx;q.y+=q.vy;q.vy+=.3;q.l--}g.pt=g.pt.filter(q=>q.l>0);hud()}
+/* draw */
+function draw(){const c=$('cv').getContext('2d'),g=G;if(!g)return;const L=g.L;c.fillStyle=L==4?'#2d2438':'#5c94fc';c.fillRect(0,0,640,360);
+const cam=g.cam=Math.max(0,Math.min(g.W-640,g.p.x-260));
+if(L!=4){c.fillStyle='#fff';for(let i=0;i<4;i++){const x=((i*230-cam*.3)%760+760)%760-60;c.fillRect(x,50+i%2*30,70,16);c.fillRect(x+12,40+i%2*30,40,12)}}
+if(L==5){drawLab(c);return}
+c.save();c.translate(-cam,0);
+if(L==4){for(let i=0;i<7;i++){const x0=g.seg[i],x1=g.seg[i+1]||g.W,h=110+i*13;c.fillStyle=C[i].c+'66';c.fillRect(x0,0,x1-x0,h);c.fillStyle='#000';for(let y=0;y<h;y+=20)c.fillRect(x0,y,x1-x0,2)}}
+for(const pl of g.P){const col=pl[5]?'#795548':(L>=2&&L<=4?C[pl[4]].c:'#43a047');c.fillStyle=col;c.fillRect(pl[0],pl[1],pl[2],pl[3]);c.fillStyle='rgba(0,0,0,.25)';c.fillRect(pl[0],pl[1]+4,pl[2],pl[3]-4);
+if(pl[5]){const e=g.q&&g.fails>=7&&pl[5]==g.q.a;c.fillStyle=e?'#ffeb3b':'#fff';c.font='bold 14px monospace';c.fillText({U:'▲ UP',D:'▼ DOWN',S:'＝ SAME'}[pl[5]],pl[0]+18,pl[1]+13)}
+else if(L>=2&&L<=4){c.fillStyle='#fff';c.font='bold 14px monospace';c.fillText(C[pl[4]].k,pl[0]+4,pl[1]+16);if(L==2)c.fillText('λ '+C[pl[4]].wl,pl[0]+22,pl[1]+16)}}
+for(const k of g.K){c.fillStyle='#ffd600';c.fillRect(k.x-6,k.y-6,12,12);c.fillStyle='#fff';c.fillRect(k.x-3,k.y-4,3,3)}
+if(L==1)for(const b of g.blocks){const ox=b.sh?Math.sin(b.sh)*5:0;c.fillStyle=b.ok?'#999':C[b.ci].c;c.fillRect(b.x+ox,b.y,36,36);c.strokeStyle=(g.fails>=7&&b.ci==g.next)?'#ffeb3b':'#000';c.lineWidth=(g.fails>=7&&b.ci==g.next)?5:2;c.strokeRect(b.x+ox,b.y,36,36);c.fillStyle='#fff';c.font='bold 18px monospace';c.fillText(C[b.ci].k,b.x+ox+11,b.y+25)}
+if(g.goal){c.fillStyle='#fff';c.fillRect(g.goal,200,4,100);c.fillStyle='#e53935';c.fillRect(g.goal+4,200,30,20)}
+if(L==3){const s=segOf(g.p.x);c.strokeStyle=C[s].c;c.lineWidth=2;c.beginPath();c.arc(g.p.x+12,g.p.y+14,g.mag,0,6.3);c.stroke()}
+if(L==7){const sh=g.shake>0?(g.shake--,Math.random()*6-3):0;c.fillStyle='#4a148c';c.fillRect(250+sh,60,140,90);c.fillStyle='#f44336';c.fillRect(280+sh,85,20,16);c.fillRect(340+sh,85,20,16);c.fillStyle='#fff';c.fillRect(290+sh,120,60,8);for(let i=0;i<7;i++){c.fillStyle=C[i].c;c.fillRect(250+i*20+sh,50,20,10)}}
+drawE(c);if(!(g.inv>0&&(g.ani>>2)&1))crab(c,g.p.x,g.p.y,1.5,g.p.f);
+for(const q of g.pt){c.fillStyle=q.c;c.fillRect(q.x,q.y,5,5)}
+c.restore();
+c.fillStyle='#000';c.font='bold 13px monospace';
+if(L==1){c.fillText('Next: '+(g.next<7?'?':'done')+'  ('+g.next+'/7)',8,16)}
+if(L==3){const s=segOf(g.p.x);c.fillStyle='#fff';c.fillText('Colour '+C[s].n+'  POWER',8,16);c.fillStyle='#333';c.fillRect(8,22,140,10);c.fillStyle=C[s].c;c.fillRect(8,22,(s+1)*20,10)}
+if(L==2||L==4){const s=segOf(g.p.x);c.fillStyle=L==4?'#fff':'#000';c.fillText(C[s].n+'  λ '+C[s].wl+' nm',8,16)}
+if(L>=6){c.fillStyle='#000';c.fillRect(0,0,640,34);c.fillStyle='#fff';c.fillText(g.q?g.q.t:'',8,14);if(L==7){c.fillStyle='#555';c.fillRect(8,20,300,10);c.fillStyle='#f44336';c.fillRect(8,20,300*g.hp/700,10);c.fillStyle='#fff';c.fillText('LORD DISPERSION '+g.hp+'/700',316,29)}else c.fillText(g.hit+'/'+g.need+' correct',500,29)}}
+function drawLab(c){const g=G,i=g.sel;c.fillStyle='#1a1a40';c.fillRect(0,0,640,360);c.fillStyle='#ccc';c.beginPath();c.moveTo(250,280);c.lineTo(330,110);c.lineTo(410,280);c.closePath();c.fill();
+c.strokeStyle='#fff';c.lineWidth=4;c.beginPath();c.moveTo(20,215);c.lineTo(295,195);c.stroke();
+C.forEach((k,j)=>{const a=(8+(NN[j]-1.513)/.019*16)*Math.PI/180;c.strokeStyle=k.c;c.globalAlpha=j==i?1:.3;c.lineWidth=j==i?6:2;c.beginPath();c.moveTo(365,195);c.lineTo(365+Math.cos(a)*260,195+Math.sin(a)*260+10);c.stroke()});c.globalAlpha=1;
+c.fillStyle='#fff';c.font='bold 14px monospace';c.fillText('White light',20,205);c.fillText(C[i].n+': deviation '+phys(i)['Prism deviation'],20,340);crab(c,40,230,1.5,0)}
+setOpt(1);drawMini('mc');updMb();
+</script></body></html>
